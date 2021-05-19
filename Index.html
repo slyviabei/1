@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Insert title here</title>
+		<link rel="stylesheet" type="text/css" href="EasyUI1.7/themes/default/easyui.css">
+		<link rel="stylesheet" type="text/css" href="EasyUI1.7/themes/icon.css">				
+		<script type="text/javascript" src="EasyUI1.7/jquery.min.js"></script>
+		<script type="text/javascript" src="EasyUI1.7/jquery.easyui.min.js"></script>
+		
+		<link rel="stylesheet" href="SuperMap_Openlayers/iclient9-openlayers.css" type="text/css">    
+    	<script src="SuperMap_Openlayers/include-openlayers.js"></script>
+    	<script src="SuperMap_Openlayers/iclient9-openlayers.js"></script>
+    		
+		<script type="text/javascript" src="JS/LoadSuperMap.js"></script>
+		<script type="text/javascript" src="JS/LoadSelfFunction.js"></script>
+	</head>
+	<body class="easyui-layout">
+		<div data-options="region:'north'" style="height:50px">
+			<div class="easyui-panel" style="padding:5px;">
+				<a href="#" onclick = "TestHome()" class="easyui-linkbutton" data-options="plain:true">欢迎使用</a>
+				<a href="#" class="easyui-menubutton" data-options="menu:'#mm2',iconCls:'icon-help'">紧急呼叫</a>
+				<a href="#" class="easyui-menubutton" data-options="menu:'#mm3'">关于</a>
+				<a href="1.html" class="easyui-linkbutton" onclick="$('#dlg').dialog('111')">青岛旅游景点详情(点击进入)</a>
+			</div>
+			
+			<div id="mm2" style="width:100px;">
+				<div>报警:110</div>
+				<div>急救:120</div>
+				<div>火警:119</div>
+			</div>
+			<div id="mm3" class="menu-content" style="background:#f0f0f0;padding:10px;text-align:left">
+				<img src="images/2.jpg" style="width:500px;height:200px">
+				<p style="font-size:20px;color:#444;">网页制作人名单：</p>
+				<p style="font-size:14px;color:#444;">组长：毛思琪</p>
+				<p style="font-size:14px;color:#444;">组员：</p>
+				<p style="font-size:14px;color:#444;">张浩林 李旭燕</p>
+				<p style="font-size:14px;color:#444;">张胜威 田蔚然</p>
+				<p style="font-size:14px;color:#444;">王欠鑫 姜英慧</p>
+			</div>
+		</div>
+		<div data-options="region:'south',split:true" style="height:50px;"></div>
+<!-- 		<div data-options="region:'east',split:true" title="目录" style="width:100px;"> -->
+			<ul class="easyui-tree" data-options="url:'tree_data1.json',method:'get',animate:true,dnd:true"></ul>
+		</div>
+		<div data-options="region:'west',split:true" title="快捷预览界面" style="width:140px;">
+			<div class="easyui-accordion" data-options="fit:true,border:false">
+				<div title="景区代号" style="padding:10px;">
+					<p>五四广场(QD-1)</p>
+					<p>奥帆中心(QD-2)</p>
+					<p>劈柴院(QD-3)</p>
+					<p>海水浴场(QD-4)</p>
+					<p>天主教堂(QD-5)</p>
+					<p>崂山(QD-6)</p>
+					<p>八大关(QD-7)</p>
+					<p>栈桥(QD-8)</p>
+					<p>海洋世界(QD-9)</p>
+					<p>金沙滩(QD-10)</p>	
+				</div>
+				<div title="景区电话"  style="padding:10px;">
+				    <p>五四广场(0532)85711594</p>
+					<p>奥帆中心(0532)58617777</p>
+					<p>劈柴院(0532)82828291</p>
+					<p>崂山0532-88899000</p>
+					<p>八大关13608986596</p>
+					<p>栈桥(0532)82884548</p>
+					<p>金沙滩(0532)86707399</p>	
+				</div>
+				<div title="开放时间" style="padding:10px">
+					<p>五四广场:全天</p>
+					<p>奥帆中心:全天</p>
+					<p>劈柴院:全天</p>
+					<p>海水浴场:全天</p>
+					<p>天主教堂:8:00-17:00</p>
+					<p>崂山:7:30-17:30</p>
+					<p>八大关:全天</p>
+					<p>栈桥:07:00—19:00</p>
+					<p>海洋世界:8:30-17:00</p>
+					<p>金沙滩:全天</p>	
+				</div>
+				<div title="景区门票" style="padding:10px">
+					<p>五四广场:免费</p>
+					<p>奥帆中心:180元</p>
+					<p>劈柴院:免费</p>
+					<p>海水浴场:免费</p>
+					<p>天主教堂:10元</p>
+					<p>崂山:180人民币</p>
+					<p>八大关:免费</p>
+					<p>栈桥:免费</p>
+					<p>海洋世界:200元</p>
+					<p>金沙滩:免费</p>
+				</div>
+			</div>
+		</div>		
+		<div data-options="region:'center',title:'主界面',iconCls:'icon-ok'">
+			<div class="easyui-tabs" data-options="fit:true,border:false,plain:true">
+				<div title="简介" data-options="href:'_content.html'" style="padding:10px"></div>
+				<div title="注意事项" style="padding:5px">
+				<p>1.青岛是海滨城市空气比较潮湿，衣服洗好不容易干，去青岛旅游尽量多带些干的换洗衣服。青岛气候凉爽，夏天出游也要带上长袖衣服以防夜间空气降低着凉。</p>
+				<p>2.夏季到青岛旅游请避免在烈日直晒，即使是在海里游泳时间也不宜过长，以免晒伤皮肤。在海中游泳时发现水母，不要触碰它，以免被蜇伤。</p>
+				<p>3.机场、火车站、长途汽车站外的出租车大多不规范，不熟悉情况的旅游者要小心被“黑”。建议乘坐机场到市区的机场巴士，票价15元，比较安全。如果一定要坐出租车，避开火车站和长途站再扬招。</p>
+				<p>4.每年1月到4月份的青岛风大气温低、回升速度慢，有关节炎的患者最好避开这个时节。</p>
+				<p>5.2、5、6、7月的青岛空气湿度大、污染严重，不利于气管炎患者的出行。</p>
+				<p>6.在海边进行水上项目一定要注意安全，在有工作人员的水域活动。游泳时尽量不要到深水区，不要离岸太远，离岸越远水温越低，容易导致体力不支而发生危险。青岛每年因为忽视洋流而发生危险溺水的多达十几人。</p>
+				<p>7.青岛海鲜很多，建议先吃一点看看反应，有些朋友是吃海鲜过敏却不自知。尽量挑选新鲜的海鲜食用，食用前在淡盐水中浸泡一下消毒。如果发生上吐下泻、全身起大红斑的症状，有可能就是过敏症状，请立即去医院就诊，青岛的医院对这种情况有着丰富的经验。</p>
+				<p>8.在住宿期间，出入酒店要记得随手关门，不要在床上抽烟，退房前，要仔细检查一下所携带的行李物品，特别要注意证件和贵重物品。</p>
+				<p>9.请带常备药品，如晕车药、肠胃药、驱风油、止血贴、感冒药等之类的药品，到了青岛不能不吃海鲜，所以一定要带止泻药和治疗过敏的药物，以防吃海鲜后会有不适。</p>
+				<p>10.最后衷心祝愿您能在青岛度过一个愉快的旅行</p>
+				
+				</div>
+				<div title="景区信息" style="padding:5px">
+					<table class="easyui-datagrid"
+							data-options="url:'datagrid_data1.json',method:'get',singleSelect:true,fit:true,fitColumns:true">
+						<thead>
+							<tr>
+								<th data-options="field:'itemid'" width="80">景区名称</th>
+								<th data-options="field:'productid'" width="80">开放时间</th>
+								<th data-options="field:'listprice',align:'right'" width="80">成人票</th>
+								<th data-options="field:'unitcost',align:'right'" width="80">学生票</th>
+								<th data-options="field:'attr1'" width="100">联系电话</th>
+								<th data-options="field:'status',align:'center'" width="50">推荐等级</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div id = "geoMap" title="城市地图" style="padding:5px"></div>
+			</div>
+		</div>	
+		<div id="mm" class="easyui-menu" data-options="onClick:menuHandler" style="width:120px;">
+			<div data-options="name:'new'">New</div>
+			<div data-options="name:'save',iconCls:'icon-save'">Save</div>
+			<div data-options="name:'print',iconCls:'icon-print'">Print</div>
+			<div class="menu-sep"></div>
+			<div data-options="name:'exit'">Exit</div>		
+		</div>	
+		<div id="dlg" class="easyui-dialog" title="Complex Toolbar on Dialog" style="width:400px;height:260px;padding:10px"
+			data-options="iconCls: 'icon-save',	
+			              toolbar: '#dlg-toolbar',
+			              buttons: '#dlg-buttons',
+			              closed:true, 
+			              collapsible:true,
+			              modal:true,
+			              buttons: [{
+							text:'Ok',
+							iconCls:'icon-ok',
+							handler:function(){	DlgOKClicked();}
+							},{
+							text:'Cancel',
+							handler:function(){ alert('cancel');}
+					}]">
+
+		</div>
+		/*<script>
+			function menuHandler(item){
+				$('#log').prepend('<p>Click Item: '+item.name+'</p>');
+			}
+			$(function(){
+				$(document).bind('contextmenu',function(e){
+					e.preventDefault();
+					$('#mm').menu('show', {
+						left: e.pageX,
+						top: e.pageY
+					});
+				});
+			});
+			
+			function TestHome(){
+				alert("欢迎您来到青岛！祝您旅途愉快！");
+				
+				var test = {Name:'You',
+						Old:16};
+				ajax('get','/TestEasyUI/getTestData.do',test, getTestData);
+			}
+			
+			function getTestData(result){
+				console.log(result);
+				
+				var data = result.data;	
+				var str = JSON.stringify(data);	var obj = JSON.parse(str);
+				
+				console.log(obj);
+			}
+			
+			
+			map = new ol.Map({
+				target: 'geoMap',										
+				view: new ol.View({ 
+                	center: [13398674, 4307272],
+                    zoom: 11,
+                    projection: 'EPSG:3857'
+                 })
+            });	             
+    			
+            var googleTrURL = "http://www.google.cn/maps/vt/pb=!1m4!1m3!1i{z}!2i{x}!3i{y}!2m3!1e0!2sm!3i380072576!3m8!2szh-CN!3scn!5e1105!12m4!1e68!2m2!1sset!2sRoadmap!4e0!5m1!1e0";
+            var googleTr_layer = new ol.layer.Tile({
+    			title: "baseTransport",
+    			source: new ol.source.XYZ({
+                    url: googleTrURL
+    			}),
+    			name: 'baseTransport'
+            });	
+            map.addLayer(googleTr_layer);
+            
+            var googleSat = "http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}";	
+            var googleSat_layer = new ol.layer.Tile({
+    			title: "baseGoogleSat",
+    			source: new ol.source.XYZ({
+                    crossOrigin:'anonymous',
+                    url: googleSat
+    			}),
+    			name: 'baseGoogleSat'
+            });	
+            map.addLayer(googleSat_layer);	
+            
+            var googleAnnotationURL = "http://www.google.cn/maps/vt?lyrs=h@189&gl=cn&x={x}&y={y}&z={z}";
+            var googleAn_layer = new ol.layer.Tile({
+    			title: "baseAnnotation",
+    			source: new ol.source.XYZ({
+                    crossOrigin:'anonymous',
+                    url: googleAnnotationURL
+    			}),
+    			name: 'baseAnnotation'
+            });	
+            map.addLayer(googleAn_layer);
+            
+            loadOtherLayers();
+            
+            $(function(){
+                $("#dlg").dialog({
+                    onClose: function () {
+                    	alert("验证对话框关闭事件监听");
+                    	
+                    	//$(this).dialog('destroy'); //销毁,添加之后对话框关闭无法再打开
+                    }
+                });
+            })
+		</script>
+	</body>
+</html>

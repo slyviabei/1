@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<style type="text/css">
+	body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}	
+	
+	#allmap {height: 500px;width:100%;overflow: hidden;}
+	#result {width:100%;font-size:12px;}
+	dl,dt,dd,ul,li{
+		margin:0;
+		padding:0;
+		list-style:none;
+	}
+	dt{
+		font-size:14px;
+		font-family:"微软雅黑";
+		font-weight:bold;
+		border-bottom:1px dotted #000;
+		padding:5px 0 5px 5px;
+		margin:5px 0;
+	}
+	dd{
+		padding:5px 0 0 5px;
+	}
+	li{
+		line-height:28px;
+	}
+	</style>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.2&ak=2RUTrKBNCVajcOTpSVuKCGkRf4zRSk7s"></script>
+	
+	<!--加载鼠标绘制工具-->
+	<script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+	<link rel="stylesheet" href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css" />
+	<!--加载检索信息窗口-->
+	<script type="text/javascript" src="http://api.map.baidu.com/library/SearchInfoWindow/1.4/src/SearchInfoWindow_min.js"></script>
+	<link rel="stylesheet" href="http://api.map.baidu.com/library/SearchInfoWindow/1.4/src/SearchInfoWindow_min.css" />
+	
+	<script type="text/javascript" src="http://api.map.baidu.com/library/SearchInfoWindow/1.5/src/SearchInfoWindow_min.js"></script>
+	
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.2"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/library/DistanceTool/1.2/src/DistanceTool_min.js"></script>
+	
+	<link rel="stylesheet" href="http://api.map.baidu.com/library/SearchInfoWindow/1.5/src/SearchInfoWindow_min.css" />
+	
+	<title>青岛旅游景点详情</title>
+</head>
+<body>
+
+
+
+	<div id="l-map"></div>
+	<div id="r-result">地点查询:<input type="text" id="suggestId" size="20" value="百度" style="width:150px;" /></div>
+	<div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
+
+
+	<div id="allmap" style="overflow:hidden;zoom:1;position:relative;">	
+		<div id="map" style="height:100%;-webkit-transition: all 0.5s ease-in-out;transition: all 0.5s ease-in-out;"></div>	
+	</div>
+	
+	
+	<div id="result">
+		<input type="button" value="重新定位" onclick="searchInfoWindow.open(marker);"/>
+		
+		<input type="button" onclick="add_control();" value="控件添加" />
+		<input type="button" onclick="delete_control();" value="控件删除" />
+		
+		<input type="button" value="获取绘制的覆盖物个数" onclick="alert(overlays.length)"/>
+		<input type="button" value="清除所有覆盖物" onclick="clearAll()"/>
+		
+<!-- 		<input type="button" value="样式1" onclick="openInfoWindow1()"/> -->
+<!-- 		<input type="button" value="样式2" onclick="openInfoWindow2()"/> -->
+<!-- 		<input type="button" value="样式3" onclick="openInfoWindow3()"/> -->
+	</div>
+	
+	
+   <script type="text/javascript">
+   
+   var map = new BMap.Map('allmap'); 
+   
+//关键词搜索地点
+function G(id) {
+	return document.getElementById(id);
+}
+
+var ac = new BMap.Autocomplete(    //建立一个自动完成的对象
+	{"input" : "suggestId"
+	,"location" : map
+});
+
+ac.addEventListener("onhighlight", function(e) {  //鼠标放在下拉列表上的事件
+var str = "";
+	var _value = e.fromitem.value;
+	var value = "";
+	if (e.fromitem.index > -1) {
+		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+	}    
+	str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+	
+	value = "";
+	if (e.toitem.index > -1) {
+		_value = e.toitem.value;
+		value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+	}    
+	str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+	G("searchResultPanel").innerHTML = str;
+});
+
+var myValue;
+ac.addEventListener("onconfirm", function(e) {    //鼠标点击下拉列表后的事件
+var _value = e.item.value;
+	myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+	G("searchResultPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
+	
+	setPlace();
+});
+
+function setPlace(){
+	map.clearOverlays();    //清除地图上所有覆盖物
+	function myFun(){
+		var pp = local.getResults().getPoi(0).point;    //获取第一个智能搜索的结果
+		map.centerAndZoom(pp, 14);
+		map.addOverlay(new BMap.Marker(pp));    //添加标注
+	}
+	var local = new BMap.LocalSearch(map, { //智能搜索
+	  onSearchComplete: myFun
+	});
+	local.search(myValue);
+}
+
+	// 自己查找的景点坐标
+
+	//青岛市政府
+    var poi = new BMap.Point(120.389104,36.073007);
+  //五四广场
+    var poi1 = new BMap.Point(120.38699,36.071025);
+  //崂山
+  var poi2 = new BMap.Point(120.625651,36.19066);
+  //八大关
+  var poi3 = new BMap.Point(120.354495,36.058483);
+  //栈桥
+  var poi4 = new BMap.Point(120.325887,36.067571);
+  //青岛极地海洋世界
+  var poi5 = new BMap.Point(120.449481,36.075079);
+//黄岛金沙滩
+  var poi6 = new BMap.Point(120.250898,35.966147);
+//青岛奥帆中心
+  var poi7 = new BMap.Point(120.401384,36.062214);
+//劈柴院
+  var poi8 = new BMap.Point(120.324466,36.077071);
+//石老人海水浴场
+  var poi9 = new BMap.Point(120.476458,36.09903);
+//天主教堂
+  var poi10 = new BMap.Point(120.327292,36.073993);
+   
+    map.centerAndZoom(poi, 14);
+    
+    map.enableScrollWheelZoom();
+    
+  //鼠标绘制点线面
+	var overlays = [];
+	var overlaycomplete = function(e){
+	    overlays.push(e.overlay);
+	};
+	var styleOptions = {
+	    strokeColor:"red",    //边线颜色。
+	    fillColor:"red",      //填充颜色。当参数为空时，圆形将没有填充效果。
+	    strokeWeight: 3,       //边线的宽度，以像素为单位。
+	    strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
+	    fillOpacity: 0.6,      //填充的透明度，取值范围0 - 1。
+	    strokeStyle: 'solid' //边线的样式，solid或dashed。
+	}
+	//实例化鼠标绘制工具
+	var drawingManager = new BMapLib.DrawingManager(map, {
+	    isOpen: false, //是否开启绘制模式
+	    enableDrawingTool: true, //是否显示工具栏
+	    drawingToolOptions: {
+	        anchor: BMAP_ANCHOR_TOP_RIGHT, //位置
+	        offset: new BMap.Size(5, 5), //偏离值
+	    },
+	    circleOptions: styleOptions, //圆的样式
+	    polylineOptions: styleOptions, //线的样式
+	    polygonOptions: styleOptions, //多边形的样式
+	    rectangleOptions: styleOptions //矩形的样式
+	});  
+	 //添加鼠标绘制工具监听事件，用于获取绘制结果
+	drawingManager.addEventListener('overlaycomplete', overlaycomplete);
+	function clearAll() {
+		for(var i = 0; i < overlays.length; i++){
+	        map.removeOverlay(overlays[i]);
+	    }
+	    overlays.length = 0   
+	}
+
+    
+    //定位当前城市
+//     function myFun(result){
+// 		var cityName = result.name;
+// 		map.setCenter(cityName);
+// 		alert("当前定位城市:"+cityName);
+// 	}
+// 	var myCity = new BMap.LocalCity();
+// 	myCity.get(myFun);
+
+	
+	//添加控件
+	var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// 左上角，添加比例尺
+	var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
+	var top_right_navigation = new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}); //右上角，仅包含平移和缩放按钮
+	/*缩放控件type有四种类型:
+	BMAP_NAVIGATION_CONTROL_SMALL：仅包含平移和缩放按钮；BMAP_NAVIGATION_CONTROL_PAN:仅包含平移按钮；BMAP_NAVIGATION_CONTROL_ZOOM：仅包含缩放按钮*/
+	
+	//添加控件和比例尺
+	function add_control(){
+		map.addControl(top_left_control);        
+		map.addControl(top_left_navigation);     
+		map.addControl(top_right_navigation);    
+	}
+	//移除控件和比例尺
+	function delete_control(){
+		map.removeControl(top_left_control);     
+		map.removeControl(top_left_navigation);  
+		map.removeControl(top_right_navigation); 
+	}
+	
+
+	//显示旅游景点信息
+    var content = '<div style="margin:0;line-height:20px;padding:2px;">' +
+                    '<img src="images/青岛市政府.jpg" alt="" style="float:right;zoom:1;overflow:hidden;width:100px;height:100px;margin-left:3px;"/>' +
+                    '地址：山东省青岛市香港中路11号.<br/>电话：(010)59928888<br/>简介：青岛市人民政府是青岛市行政管理机关，是副省级行政机关,青岛市人民政府是青岛市行政管理机关。' +
+                  '</div>';
+
+    //创建检索信息窗口对象
+    var searchInfoWindow = null;
+	searchInfoWindow = new BMapLib.SearchInfoWindow(map, content, {
+			title  : "青岛市政府",      //标题
+			width  : 390,             //宽度
+			height : 205,              //高度
+			panel  : "panel",         //检索结果面板
+			enableAutoPan : true,     //自动平移
+			searchTypes   :[
+				BMAPLIB_TAB_SEARCH,   //周边检索
+				BMAPLIB_TAB_TO_HERE,  //到这里去
+				BMAPLIB_TAB_FROM_HERE //从这里出发
+			]
+		});
+	
+    var marker = new BMap.Marker(poi); //创建marker对象
+    marker.enableDragging(); //marker可拖拽
+    marker.addEventListener("click", function(e){
+	    searchInfoWindow.open(marker);
+    })
+    map.addOverlay(marker); //在地图中添加marker
+    
+    var content1 = '<div style="margin:0;line-height:20px;padding:2px;">' +
+    '<img src="images/五四广场.jpg" alt="" style="float:right;zoom:1;overflow:hidden;width:100px;height:100px;margin-left:3px;"/>' +
+    '地址：山东省青岛市市南区东海西路，北依青岛市人民政府办公大楼，南临浮山湾.<br/>电话：(0532)85711594<br/>简介：国家AA级旅游景区，全天开放，门票免费,五四广场因“五四运动”而得名。鉴于青岛与“五四运动”这一特殊的关系，青岛市委、市政府决定将新建广场命名为“五四广场”。五四广场标志性雕塑“五月的风”，以螺旋上升的风,造型是火红色，体现了“五四运动”反帝、反封建的爱国主义基调和民族力量。' +
+  '</div>';
+    //创建检索信息窗口对象
+   var searchInfoWindow1 = null;
+    searchInfoWindow1 = new BMapLib.SearchInfoWindow(map, content1, {
+		title  : "五四广场",      //标题
+		width  : 390,             //宽度
+		height : 205,              //高度
+		panel  : "panel",         //检索结果面板
+		enableAutoPan : true,     //自动平移
+		searchTypes   :[
+			BMAPLIB_TAB_SEARCH,   //周边检索
+			BMAPLIB_TAB_TO_HERE,  //到这里去
+			BMAPLIB_TAB_FROM_HERE //从这里出发
+		]
+	});
+    var marker1 = new BMap.Marker(poi1); //创建marker对象
+    marker1.enableDragging(); //marker可拖拽
+    marker1.addEventListener("click", function(e){
+	    searchInfoWindow1.open(marker1);
+    })
+    map.addOverlay(marker1); //在地图中添加marker
+    
+    
+    var content2 = '<div style="margin:0;line-height:20px;padding:2px;">' +
+     '<img src="images/崂山.jpg" alt="" style="float:right;zoom:1;overflow:hidden;width:100px;height:100px;margin-left:3px;"/>' +
+     '地址：山东青岛东部<br/>电话：0532-88899000<br/>简介：崂山，位于青岛市东部，它是山东半岛的主要山脉，崂山的最高峰名为巨峰，又称崂顶，海拔1132.7米，峰顶面积约1.5平方公里，有着海上“第一名山”之称。崂山，东高而悬崖傍海，西缓而丘陵起伏，山区面积446平方公里。山脉以崂顶为中心，向四方延伸，尤以西北、西南两个方向延伸较长，形成了巨峰、三标山、石门山和午山四条支脉，崂山的余脉沿东海岸向北至即墨市的东部，西抵胶州湾畔，西南方向的余脉则延伸到青岛市区，形成了市区的十余个山头和跌宕起伏的丘陵地形。' +
+   '</div>';
+   
+    //创建检索信息窗口对象
+     var searchInfoWindow2 = null;
+     searchInfoWindow2 = new BMapLib.SearchInfoWindow(map, content2, {
+ 		title  : "崂山",      //标题
+ 		width  : 390,             //宽度
+ 		height : 205,              //高度
+ 		panel  : "panel",         //检索结果面板
+ 		enableAutoPan : true,     //自动平移
+ 		searchTypes   :[
+ 			BMAPLIB_TAB_SEARCH,   //周边检索
+ 			BMAPLIB_TAB_TO_HERE,  //到这里去
+ 			BMAPLIB_TAB_FROM_HERE //从这里出发
+ 		]
+ 	});
+     var marker2 = new BMap.Marker(poi2); //创建marker对象
+     marker2.enableDragging(); //marker可拖拽
+     marker2.addEventListener("click", function(e){
+ 	    searchInfoWindow2.open(marker2);
+     })
+     map.addOverlay(marker2); //在地图中添加marker
+    
+     var content3 = '<div style="margin:0;line-height:20px;padding:2px;">' +
+     '<img src="images/八大关.jpg" alt="" style="float:right;zoom:1;overflow:hidden;width:100px;height:100px;margin-left:3px;"/>' +
+     '地址：山东省青岛市市南区汇泉角东北部。<br/>电话：13608986596<br/>简介：八大关位于山东省青岛市市南区汇泉东部，太平山南麓，始建于20世纪30年代，是中国著名的风景疗养区，面积70余公顷。所谓"八大关"，是因为这里有八条马路（现已增到十条），是以中国古代长城著名关隘命名的。此处是著名的别墅区，人称“万国建筑博物馆”。这一地区修筑了大约10条道路，均以中国古代军事关隘命名，包括纵向连接香港西路的紫荆关路、宁武关路和韶关路，以及横向交织的武胜关路、嘉峪关路、函谷关路、正阳关路、临淮关路、居庸关路和山海关路，俗称为八大关。' +
+   '</div>';
+   
+   //创建检索信息窗口对象
+   var searchInfoWindow3 = null;
+     searchInfoWindow3 = new BMapLib.SearchInfoWindow(map, content3, {
+ 		title  : "八大关",      //标题
+ 		width  : 390,             //宽度
+ 		height : 205,              //高度
+ 		panel  : "panel",         //检索结果面板
+ 		enableAutoPan : true,     //自动平移
+ 		searchTypes   :[
+ 			BMAPLIB_TAB_SEARCH,   //周边检索
+ 			BMAPLIB_TAB_TO_HERE,  //到这里去
+ 			BMAPLIB_TAB_FROM_HERE //从这里出发
+ 		]
+ 	});
+     var marker3 = new BMap.Marker(poi3); //创建marker对象
+     marker3.enableDragging(); //marker可拖拽
+     marker3.addEventListener("click", function(e){
+ 	    searchInfoWindow3.open(marker3);
+     })
+     map.addOverlay(marker3); //在地图中添加marker
+     
+     var content4 = '<div style="margin:0;line-height:20px;padding:2px;">' +
+     '<img src="images/栈桥.jpg" alt="" style="float:right;zoom:1;overflow:hidden;width:100px;height:100px;margin-left:3px;"/>' +
+     '地址：山东省青岛市市南区太平路14号。<br/>电话：0532-82884548<br/>简介：青岛栈桥是青岛海滨风景区的景点之一，是国务院于1982年首批公布的国家级风景名胜区，也是首批国家AAAA级旅游景区。青岛栈桥位于游人如织的青岛中山路南端，桥身从海岸探入如弯月般的青岛湾深处。桥身供游人参观并在此停靠旅游船，由此乘船可看海上青岛。青岛栈桥全长440米，宽8米，钢混结构。桥南端筑半圆形防波堤，堤内建有民族形式的两层八角楼，名“回澜阁”，游人伫立阁旁，欣赏层层巨浪涌来，“飞阁回澜”被誉为“青岛十景”之一。' +
+   '</div>';
+   
+   //创建检索信息窗口对象
+   var searchInfoWindow4 = null;
+     searchInfoWindow4 = new BMapLib.SearchInfoWindow(map, content4, {
+ 		title  : "栈桥",      //标题
+ 		width  : 390,             //宽度
+ 		height : 205,              //高度
+ 		panel  : "panel",         //检索结果面板
+ 		enableAutoPan : true,     //自动平移
+ 		searchTypes   :[
+ 			BMAPLIB_TAB_SEARCH,   //周边检索
+ 			BMAPLIB_TAB_TO_HERE,  //到这里去
+ 			BMAPLIB_TAB_FROM_HERE //从这里出发
+ 		]
+ 	});
+     var marker4 = new BMap.Marker(poi4); //创建marker对象
+     marker4.enableDragging(); //marker可拖拽
+     marker4.addEventListener("click", function(e){
+ 	    searchInfoWindow4.open(marker4);
+     })
+     map.addOverlay(marker4); //在地图中添加marker
+     
+     var content5 = '<div style="margin:0;line-height:20px;padding:2px;">' +
+     '<img src="images/极地海洋公园.jpg" alt="" style="float:right;zoom:1;overflow:hidden;width:100px;height:100px;margin-left:3px;"/>' +
+     '地址：青岛市崂山区东海东路60号。<br/>电话：(010)59928888<br/>简介：青岛极地海洋世界内拥有36个展馆，其中极地海洋动物馆为核心部分，也是目前国内最大、拥有极地海洋动物品种最全、数量最多的场馆。馆内主要展示南、北极海洋动物，游客可以在模拟极地环境中观赏到白鲸、海象、海狮、海豹、北极海獭、北极熊、企鹅、北极狼等珍稀的极地动物，还可以欣赏这些大型海洋哺乳类动物的精彩表演。' +
+   '</div>';
+   
+   //创建检索信息窗口对象
+   var searchInfoWindow5 = null;
+     searchInfoWindow5 = new BMapLib.SearchInfoWindow(map, content5, {
+ 		title  : "青岛极地海洋世界",      //标题
+ 		width  : 390,             //宽度
+ 		height : 205,              //高度
+ 		panel  : "panel",         //检索结果面板
+ 		enableAutoPan : true,     //自动平移
+ 		searchTypes   :[
+ 			BMAPLIB_TAB_SEARCH,   //周边检索
+ 			BMAPLIB_TAB_TO_HERE,  //到这里去
+ 			BMAPLIB_TAB_FROM_HERE //从这里出发
+ 		]
+ 	});
+     var marker5 = new BMap.Marker(poi5); //创建marker对象
+     marker5.enableDragging(); //marker可拖拽
+     marker5.addEventListener("click", function(e){
+ 	    searchInfoWindow5.open(marker5);
+     })
+     map.addOverlay(marker5); //在地图中添加marker
+     
+     var content6 = '<div style="margin:0;line-height:20px;padding:2px;">' +
+     '<img src="images/金沙滩.jpg" alt="" style="float:right;zoom:1;overflow:hidden;width:100px;height:100px;margin-left:3px;"/>' +
+     '地址：山东省青岛市经济技术开发区内。<br/>电话：0532-86707399<br/>简介：青岛金沙滩旅游度假区位于山东省青岛市经济技术开发区内，于2008年底被评为AAAA级景区。被称为“亚洲第一滩”。金沙滩水清滩平，沙细如粉，沙质为金黄色。因为水清滩平，沙细如粉，色泽如金，所以得到了金沙滩这个名字。金沙滩海面有一石蛙，头东尾西，随潮起潮落若隐若现，称为“隐身石蛙”。金沙滩文化旅游节享有“亚洲第一滩”美誉的黄岛区金沙滩为载体，突出开放性、国际性、现代性、群众性以及沙滩文化、海洋文化和旅游时尚文化的特色，是一个集中体现文化品位、开放意识和建设成就的文化盛会。' +
+   '</div>';
+   
+   //创建检索信息窗口对象
+   var searchInfoWindow6 = null;
+     searchInfoWindow6 = new BMapLib.SearchInfoWindow(map, content6, {
+ 		title  : "黄岛金沙滩",      //标题
+ 		width  : 390,             //宽度
+ 		height : 205,              //高度
+ 		panel  : "panel",         //检索结果面板
+ 		enableAutoPan : true,     //自动平移
+ 		searchTypes   :[
+ 			BMAPLIB_TAB_SEARCH,   //周边检索
+ 			BMAPLIB_TAB_TO_HERE,  //到这里去
+ 			BMAPLIB_TAB_FROM_HERE //从这里出发
+ 		]
+ 	});
+     var marker6 = new BMap.Marker(poi6); //创建marker对象
+     marker6.enableDragging(); //marker可拖拽
+     marker6.addEventListener("click", function(e){
+ 	    searchInfoWindow6.open(marker6);
+     })
+     map.addOverlay(marker6); //在地图中添加marker
+     
+     var content7 = '<div style="margin:0;line-height:20px;padding:2px;">' +
+     '<img src="images/奥帆中心.jpg" alt="" style="float:right;zoom:1;overflow:hidden;width:100px;height:100px;margin-left:3px;"/>' +
+     '地址：青岛市浮山湾畔.<br/>电话：(0532)58617777<br/>简介：青岛奥帆中心景区位于青岛市浮山湾畔，与青岛市标志性景点——五四广场近海相望，全国唯一“国家滨海旅游休闲示范区”，总占地面积约45公顷，是2008年北京奥运会奥帆赛和第29届残奥会帆船比赛举办场地，奥帆中心景区依山面海，景色宜人，是全国唯一“国家滨海旅游休闲示范区”。奥帆中心景区内不仅有飞帆渺渺的优雅，有青岛十大旧景代表燕岛秋潮，有青岛新时代景观鸥翔彩虹，更有众多惊险刺激的娱乐体验，是游客来青岛必看的景点。' +
+   '</div>';
+   
+   //创建检索信息窗口对象
+   var searchInfoWindow7 = null;
+     searchInfoWindow7 = new BMapLib.SearchInfoWindow(map, content7, {
+ 		title  : "青岛奥帆中心",      //标题
+ 		width  : 390,             //宽度
+ 		height : 205,              //高度
+ 		panel  : "panel",         //检索结果面板
+ 		enableAutoPan : true,     //自动平移
+ 		searchTypes   :[
+ 			BMAPLIB_TAB_SEARCH,   //周边检索
+ 			BMAPLIB_TAB_TO_HERE,  //到这里去
+ 			BMAPLIB_TAB_FROM_HERE //从这里出发
+ 		]
+ 	});
+     var marker7 = new BMap.Marker(poi7); //创建marker对象
+     marker7.enableDragging(); //marker可拖拽
+     marker7.addEventListener("click", function(e){
+ 	    searchInfoWindow7.open(marker7);
+     })
+     map.addOverlay(marker7); //在地图中添加marker
+     
+     var content8 = '<div style="margin:0;line-height:20px;padding:2px;">' +
+     '<img src="images/劈柴院.jpg" alt="" style="float:right;zoom:1;overflow:hidden;width:100px;height:100px;margin-left:3px;"/>' +
+     '地址：青岛市南区中山路商业圈。<br/>电话：(0532)82828291<br/>简介：青岛著名美食街商业圈，全天开放，门票免费。从上个世纪20年代中期，青岛建为城市后，在这里修了一条江宁路，建了几个大院，江宁路逐渐成了一条商业步行街，街上几个大院多为商店、饭铺，劈柴院从一个院子的名称成了这一商业街的名称。劈柴院像老北京东安市场一样，是个门类齐全的市场。江宁路有二十几个院，整条街和几个院是商业、餐饮、娱乐集中的地区，是青岛人和游客逛街的集中去处。' +
+   '</div>';
+   
+   //创建检索信息窗口对象
+   var searchInfoWindow8 = null;
+     searchInfoWindow8 = new BMapLib.SearchInfoWindow(map, content8, {
+ 		title  : "劈柴院",      //标题
+ 		width  : 390,             //宽度
+ 		height : 205,              //高度
+ 		panel  : "panel",         //检索结果面板
+ 		enableAutoPan : true,     //自动平移
+ 		searchTypes   :[
+ 			BMAPLIB_TAB_SEARCH,   //周边检索
+ 			BMAPLIB_TAB_TO_HERE,  //到这里去
+ 			BMAPLIB_TAB_FROM_HERE //从这里出发
+ 		]
+ 	});
+     var marker8 = new BMap.Marker(poi8); //创建marker对象
+     marker8.enableDragging(); //marker可拖拽
+     marker8.addEventListener("click", function(e){
+ 	    searchInfoWindow8.open(marker8);
+     })
+     map.addOverlay(marker8); //在地图中添加marker
+     
+     var content9 = '<div style="margin:0;line-height:20px;padding:2px;">' +
+     '<img src="images/石老人海水浴场.jpg" alt="" style="float:right;zoom:1;overflow:hidden;width:100px;height:100px;margin-left:3px;"/>' +
+     '地址：山东省青岛市崂山区海口路。<br/>电话：(010)59928888<br/>简介：石老人海水浴场因海中巨石“石老人”得名，是青岛市“石老人国家旅游度假区”的一部分。石老人海水浴场水清沙细，滩平坡缓。改造后的海水浴场由滨海步行道贯穿始终，并以此为主线串起度假海滩、欢庆海滩、运动海滩、高级会员海滩等4个高质量沙滩活动区域，成为集度假、观光旅游、海上运动、沙滩运动、休闲娱乐为一体的综合性旅游度假海滩。石老人海水浴场与青岛的其它海水浴场相比，风浪比较大，可谓无风三尺浪。但沙滩较长，且较为平缓，因此适合沙滩排球、沙滩摩托车项目。' +
+   '</div>';
+   
+   //创建检索信息窗口对象
+   var searchInfoWindow9 = null;
+     searchInfoWindow9 = new BMapLib.SearchInfoWindow(map, content9, {
+ 		title  : "石老人海水浴场",      //标题
+ 		width  : 390,             //宽度
+ 		height : 205,              //高度
+ 		panel  : "panel",         //检索结果面板
+ 		enableAutoPan : true,     //自动平移
+ 		searchTypes   :[
+ 			BMAPLIB_TAB_SEARCH,   //周边检索
+ 			BMAPLIB_TAB_TO_HERE,  //到这里去
+ 			BMAPLIB_TAB_FROM_HERE //从这里出发
+ 		]
+ 	});
+     var marker9 = new BMap.Marker(poi9); //创建marker对象
+     marker9.enableDragging(); //marker可拖拽
+     marker9.addEventListener("click", function(e){
+ 	    searchInfoWindow9.open(marker9);
+     })
+     map.addOverlay(marker9); //在地图中添加marker
+     
+     var content10 = '<div style="margin:0;line-height:20px;padding:2px;">' +
+     '<img src="images/天主教堂.jpg" alt="" style="float:right;zoom:1;overflow:hidden;width:100px;height:100px;margin-left:3px;"/>' +
+     '地址：山东省青岛市浙江路。<br/>电话：(010)59928888<br/>简介：青岛天主教堂本名天主教青岛教区浙江路圣弥厄尔教堂。由德国设计师毕娄哈依据哥德式和罗马式建筑风格而设计。拟建教堂应高百米，适逢二战爆发，德国禁止本土资金外流，该教堂不得不修改图纸，即建成规模。教堂始建于1932年，于1934年竣工。塔身高56米，是建国前山东省最高的建筑。教堂装饰系采用意大利文艺复兴时期形式。堂内大厅高18米，宽敞明亮，顶棚悬有七个大吊灯，后方设有祭台，配之穹顶的圣像壁画，堪称庄严美观。' +
+   '</div>';
+   
+   //创建检索信息窗口对象
+   var searchInfoWindow10 = null;
+     searchInfoWindow10 = new BMapLib.SearchInfoWindow(map, content10, {
+ 		title  : "天主教堂",      //标题
+ 		width  : 390,             //宽度
+ 		height : 205,              //高度
+ 		panel  : "panel",         //检索结果面板
+ 		enableAutoPan : true,     //自动平移
+ 		searchTypes   :[
+ 			BMAPLIB_TAB_SEARCH,   //周边检索
+ 			BMAPLIB_TAB_TO_HERE,  //到这里去
+ 			BMAPLIB_TAB_FROM_HERE //从这里出发
+ 		]
+ 	});
+     var marker10 = new BMap.Marker(poi10); //创建marker对象
+     marker10.enableDragging(); //marker可拖拽
+     marker10.addEventListener("click", function(e){
+ 	    searchInfoWindow10.open(marker10);
+     })
+     map.addOverlay(marker10); //在地图中添加marker
+    
+    
+// 	//样式1
+// 	var searchInfoWindow22 = new BMapLib.SearchInfoWindow(map, "信息框1内容", {
+// 		title: "信息框1", //标题
+// 		panel : "panel", //检索结果面板
+// 		enableAutoPan : true, //自动平移
+// 		searchTypes :[
+// 			BMAPLIB_TAB_FROM_HERE, //从这里出发
+// 			BMAPLIB_TAB_SEARCH   //周边检索
+// 		]
+// 	});
+// 	function openInfoWindow22() {
+// 		searchInfoWindow22.open(new BMap.Point(116.319852,40.057031));
+// 	}
+// 	//样式2
+// 	var searchInfoWindow23 = new BMapLib.SearchInfoWindow(map, "信息框2内容", {
+// 		title: "信息框2", //标题
+// 		panel : "panel", //检索结果面板
+// 		enableAutoPan : true, //自动平移
+// 		searchTypes :[
+// 			BMAPLIB_TAB_SEARCH   //周边检索
+// 		]
+// 	});
+// 	function openInfoWindow23() {
+// 		searchInfoWindow23.open(new BMap.Point(116.324852,40.057031));
+// 	}
+// 	//样式3
+// 	var searchInfoWindow24 = new BMapLib.SearchInfoWindow(map, "信息框3内容", {
+// 		title: "信息框3", //标题
+// 		width: 290, //宽度
+// 		height: 40, //高度
+// 		panel : "panel", //检索结果面板
+// 		enableAutoPan : true, //自动平移
+// 		searchTypes :[
+// 		]
+// 	});
+	function openInfoWindow24() {
+		searchInfoWindow24.open(new BMap.Point(120.389104,36.073007)); 
+	}
+	
+	
+
+	
+</script>
+</body>
+</html>
